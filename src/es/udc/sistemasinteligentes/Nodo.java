@@ -23,7 +23,8 @@ public class Nodo {
         return estado;
     }
 
-    public void setEstado(Estado estado) {
-        this.estado = estado;
+    @Override
+    public String toString() {
+        return "Nodo{Estado=" + estado + ", Accion=" + accion + "}";
     }
 }

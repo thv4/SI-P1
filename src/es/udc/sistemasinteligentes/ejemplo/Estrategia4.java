@@ -3,6 +3,7 @@ package es.udc.sistemasinteligentes.ejemplo;
 import es.udc.sistemasinteligentes.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Estrategia4 implements EstrategiaBusqueda {
 
@@ -10,75 +11,62 @@ public class Estrategia4 implements EstrategiaBusqueda {
     }
 
     @Override
-    public Estado soluciona(ProblemaBusqueda p) throws Exception{
-        ArrayList<Estado> explorados = new ArrayList<Estado>();
-        Estado estadoActual = p.getEstadoInicial();
-        explorados.add(estadoActual);
-
-        int i = 1;
-
-        System.out.println((i++) + " - Empezando búsqueda en " + estadoActual);
-
-        while (!p.esMeta(estadoActual)){
-            System.out.println((i++) + " - " + estadoActual + " no es meta");
-            Accion[] accionesDisponibles = p.acciones(estadoActual);
-            boolean modificado = false;
-            for (Accion acc: accionesDisponibles) {
-                Estado sc = p.result(estadoActual, acc);
-                System.out.println((i++) + " - RESULT(" + estadoActual + ","+ acc + ")=" + sc);
-                if (!explorados.contains(sc)) {
-                    estadoActual = sc;
-                    System.out.println((i++) + " - " + sc + " NO explorado");
-                    explorados.add(estadoActual);
-                    modificado = true;
-                    System.out.println((i++) + " - Estado actual cambiado a " + estadoActual);
-                    break;
-                }
-                else
-                    System.out.println((i++) + " - " + sc + " ya explorado");
-            }
-            if (!modificado) throw new Exception("No se ha podido encontrar una solución");
-        }
-        System.out.println((i++) + " - FIN - " + estadoActual);
-        return estadoActual;
-    }
-
-    public Nodo[] solucionaa(ProblemaBusqueda p) throws Exception{
-        ArrayList<Estado> explorados = new ArrayList<Estado>();
-        //ArrayList<Nodo> ListaNodos = new ArrayList<Nodo>();
+    public Nodo[] soluciona(ProblemaBusqueda p) throws Exception {
+        ArrayList<Nodo> explorados = new ArrayList<>();
         Nodo nodoActual = new Nodo(p.getEstadoInicial(), null, null);
-        //ListaNodos.add(nodoActual);
-        explorados.add(nodoActual.getEstado());
-        Nodo[] nodos = null;
+        explorados.add(nodoActual);
 
         int i = 1;
-        // Falta implementar la lista de nodos y devolverla
-        // Para el apartado B primero aclarar la idea de los esquemas a papel y trasladar a codigo
+
         System.out.println((i++) + " - Empezando búsqueda en " + nodoActual.getEstado());
 
-        while (!p.esMeta(nodoActual.getEstado())){
+        while (!p.esMeta(nodoActual.getEstado())) {
             System.out.println((i++) + " - " + nodoActual.getEstado() + " no es meta");
             Accion[] accionesDisponibles = p.acciones(nodoActual.getEstado());
             boolean modificado = false;
-            for (Accion acc: accionesDisponibles) {
-                Estado sc = p.result(nodoActual.getEstado(), acc);
-                System.out.println((i++) + " - RESULT(" + nodoActual.getEstado() + ","+ acc + ")=" + sc);
-                if (!explorados.contains(sc)) {
-                    nodoActual.setEstado(sc);
-                    System.out.println((i++) + " - " + sc + " NO explorado");
-                    explorados.add(nodoActual.getEstado());
-                    modificado = true;
-                    System.out.println((i++) + " - Estado actual cambiado a " + nodoActual.getEstado());
-                    break;
+
+            for (Accion acc : accionesDisponibles) {
+                Estado nuevoEstado = p.result(nodoActual.getEstado(), acc);
+                System.out.println((i++) + " - RESULT(" + nodoActual.getEstado() + "," + acc + ")=" + nuevoEstado);
+
+                boolean yaExplorado = false;
+                for (Nodo nodo : explorados) {
+                    if (nodo.getEstado().equals(nuevoEstado)) {
+                        yaExplorado = true;
+                        break;
+                    }
                 }
-                else
-                    System.out.println((i++) + " - " + sc + " ya explorado");
+
+                if (!yaExplorado) {
+                    Nodo nuevoNodo = new Nodo(nuevoEstado, nodoActual, acc);
+                    explorados.add(nuevoNodo);
+                    nodoActual = nuevoNodo;
+                    System.out.println((i++) + " - " + nuevoEstado + " NO explorado");
+                    modificado = true;
+                    System.out.println((i++) + " - Estado actual cambiado a " + nuevoEstado);
+                    break;
+                } else {
+                    System.out.println((i++) + " - " + nuevoEstado + " ya explorado");
+                }
             }
-            if (!modificado) throw new Exception("No se ha podido encontrar una solución");
+
+            if (!modificado) {
+                throw new Exception("No se ha podido encontrar una solución");
+            }
         }
+
         System.out.println((i++) + " - FIN - " + nodoActual.getEstado());
 
-        //return nodoActual.getEstado();
-        return nodos;
+        return reconstruye_sol(nodoActual);
+    }
+
+    private Nodo[] reconstruye_sol(Nodo nodo) {
+        List<Nodo> camino = new ArrayList<>();
+        while (nodo != null) {
+            camino.addFirst(nodo);
+            nodo = nodo.getPadre();
+        }
+        return camino.toArray(new Nodo[0]);
     }
 }
+
