@@ -1,5 +1,5 @@
 package es.udc.sistemasinteligentes;
 
 public abstract class Heuristica {
-    public abstract float evalua(Estado e);
+    public abstract float evaluar(Estado e);
 }
